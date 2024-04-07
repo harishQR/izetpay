@@ -1,77 +1,83 @@
+import 'dart:io';
+
+import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:izetpay/homepage.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
-class ScanQR extends StatefulWidget {
-  const ScanQR({super.key});
-
+class Scanqr extends StatefulWidget {
   @override
-  State<ScanQR> createState() => _ScanQRState();
+  _ScanqrState createState() => _ScanqrState();
 }
 
-class _ScanQRState extends State<ScanQR> {
-  bool isscanned = false;
-
-  @override
-  void initState() {
-    super.initState();
-    isscanned = false; // Ensure isscanned is initially set to false
-  }
-
-  void exitScreen() {
-    setState(() {
-      isscanned = false; // Reset isscanned when exiting the screen
-    });
-  }
+class _ScanqrState extends State<Scanqr> {
+  TextEditingController title = TextEditingController();
+  TextEditingController content = TextEditingController();
+  var code = '';
+  File? file;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Icon(Icons.arrow_back, color: Colors.white),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(35),
+                child: Container(
+                  decoration: BoxDecoration(border: Border.all()),
+                  child: TextFormField(
+                    controller: title,
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      hintText: ' Code ',
+                    ),
+                  ),
+                ),
+              ),
+              MaterialButton(
+                color: Colors.indigo,
+                onPressed: () {
+                  setState(() {
+                    code = title.text;
+                  });
+                },
+                child: Text(
+                  "Create",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+              code == ''
+                  ? Text('')
+                  : BarcodeWidget(
+                barcode: Barcode.qrCode(
+                  errorCorrectLevel: BarcodeQRCorrectionLevel.high,
+                ),
+                data: '$code',
+                width: 200,
+                height: 200,
+              ),
+            ],
+          ),
         ),
       ),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "QR Scanner",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.purple),
-                ),
-              ],
-            ),
-            SizedBox(height: 50),
-            Text(
-              "Place the camera in QRCode",
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            Container(
-              width: 300,
-              height: 300,
-              child: MobileScanner(
-                onDetect: (barcode) {
-                  if (!isscanned) {
-                    String code = barcode.raw ?? '---';
-                    setState(() {
-                      isscanned = true; // Update isscanned when a QR code is scanned
-                    });
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => home_p()));
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
+    );
+  }
+}
+
+// Define your next page widget here
+class NextPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Next Page'),
+      ),
+      body: Center(
+        child: Text('This is the next page'),
       ),
     );
   }
